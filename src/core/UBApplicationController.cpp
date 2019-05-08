@@ -54,8 +54,6 @@
 #include "desktop/UBDesktopPalette.h"
 #include "desktop/UBDesktopAnnotationController.h"
 
-#include "web/UBWebController.h"
-
 #include "gui/UBScreenMirror.h"
 #include "gui/UBMainWindow.h"
 

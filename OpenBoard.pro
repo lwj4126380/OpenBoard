@@ -30,15 +30,12 @@ VERSION_RC = $$replace(VERSION_RC, "b", "176") # 0xB0
 VERSION_RC = $$replace(VERSION_RC, "rc", "192" ) # 0xC0
 VERSION_RC = $$replace(VERSION_RC, "r", "240") # 0xF0
 
-QT += webkit
 QT += svg
 QT += network
 QT += xml
-QT += script
 QT += xmlpatterns
 QT += uitools
 QT += multimedia
-QT += webkitwidgets
 QT += multimediawidgets
 QT += printsupport
 QT += core
@@ -47,7 +44,6 @@ INCLUDEPATH += src
 
 include($$THIRD_PARTY_PATH/libs.pri)
 include(src/adaptors/adaptors.pri)
-include(src/api/api.pri)
 include(src/board/board.pri)
 include(src/core/core.pri)
 include(src/document/document.pri)
@@ -59,7 +55,6 @@ include(src/pdf/pdf.pri)
 include(src/podcast/podcast.pri)
 include(src/tools/tools.pri)
 include(src/desktop/desktop.pri)
-include(src/web/web.pri)
 include(src/qtsingleapplication/src/qtsingleapplication.pri)
 
 DEPENDPATH += src/pdf-merger

@@ -44,9 +44,6 @@
 
 #include "gui/UBMainWindow.h"
 
-#include "web/UBWebController.h"
-#include "web/browser/WBWebView.h"
-
 #include "domain/UBGraphicsScene.h"
 
 #include "UBAbstractVideoEncoder.h"

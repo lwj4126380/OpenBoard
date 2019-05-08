@@ -43,7 +43,6 @@
 #include "domain/UBGraphicsScene.h"
 #include "domain/UBGraphicsSvgItem.h"
 #include "domain/UBGraphicsPixmapItem.h"
-#include "domain/UBGraphicsWidgetItem.h"
 
 #include "gui/UBFeaturesWidget.h"
 
@@ -281,14 +280,13 @@ bool UBFeature::operator !=( const UBFeature &f )const
 bool UBFeature::isFolder() const
 {
     return elementType == FEATURE_CATEGORY || elementType == FEATURE_TRASH || elementType == FEATURE_FAVORITE
-        || elementType == FEATURE_FOLDER || elementType == FEATURE_SEARCH;
+        || elementType == FEATURE_FOLDER;
 }
 
 bool UBFeature::allowedCopy() const
 {
     return isFolder()
-            && elementType != FEATURE_CATEGORY
-            && elementType != FEATURE_SEARCH;
+            && elementType != FEATURE_CATEGORY;
 }
 
 bool UBFeature::isDeletable() const
@@ -297,7 +295,6 @@ bool UBFeature::isDeletable() const
             || elementType == FEATURE_AUDIO
             || elementType == FEATURE_VIDEO
             || elementType == FEATURE_IMAGE
-            || elementType == FEATURE_FLASH
             || elementType == FEATURE_FOLDER
     //Ilia. Just a hotfix. Permission mechanism for UBFeatures should be reworked
             || getVirtualPath().startsWith("/root/Applications/Web");
@@ -398,15 +395,6 @@ void UBFeaturesController::startThread()
             <<  QPair<QUrl, UBFeature>(mLibSearchDirectoryPath, webSearchElement);
 
     mCThread.compute(computingData, favoriteSet);
-}
-
-void UBFeaturesController::createNpApiFeature(const QString &str)
-{
-    Q_ASSERT(QFileInfo(str).exists() && QFileInfo(str).isDir());
-
-    QString widgetName = QFileInfo(str).fileName();
-
-    featuresModel->addItem(UBFeature(QString(appPath + "/Web/" + widgetName), QImage(UBGraphicsWidgetItem::iconFilePath(QUrl::fromLocalFile(str))), widgetName, QUrl::fromLocalFile(str), FEATURE_INTERACTIVE));
 }
 
 void UBFeaturesController::scanFS()
@@ -643,15 +631,7 @@ UBFeatureElementType UBFeaturesController::fileTypeFromUrl(const QString &path)
     QString fileName = fileInfo.fileName();
     QString mimeString = UBFileSystemUtils::mimeTypeFromFileName(fileName);
 
-    if ( mimeString.contains("application")) {
-        if (mimeString.contains("application/search")) {
-            fileType = FEATURE_SEARCH;
-        } else if (mimeString.contains("application/x-shockwave-flash")) {
-            fileType = FEATURE_FLASH;
-        } else {
-            fileType = FEATURE_INTERACTIVE;
-        }
-    } else if (mimeString.contains("audio")) {
+    if (mimeString.contains("audio")) {
         fileType = FEATURE_AUDIO;
     } else if (mimeString.contains("video")) {
         fileType = FEATURE_VIDEO;
@@ -670,12 +650,8 @@ QImage UBFeaturesController::getIcon(const QString &path, UBFeatureElementType p
 {
     if (pFType == FEATURE_FOLDER) {
         return QImage(":images/libpalette/folder.svg");
-    } else if (pFType == FEATURE_INTERACTIVE || pFType == FEATURE_SEARCH) {
-        return QImage(UBGraphicsWidgetItem::iconFilePath(QUrl::fromLocalFile(path)));
     } else if (pFType == FEATURE_INTERNAL) {
         return QImage(UBToolsManager::manager()->iconFromToolId(path));
-    } else if (pFType == FEATURE_FLASH) {
-        return QImage(":images/libpalette/FlashIcon.svg");
     } else if (pFType == FEATURE_AUDIO) {
         return QImage(":images/libpalette/soundIcon.svg");
     } else if (pFType == FEATURE_VIDEO) {
@@ -933,8 +909,8 @@ UBFeature UBFeaturesController::moveItemToFolder( const QUrl &url, const UBFeatu
     QImage thumb = getIcon( newFullPath );
     
     UBFeatureElementType type = FEATURE_ITEM;
-    if ( UBFileSystemUtils::mimeTypeFromFileName( newFullPath ).contains("application") ) 
-        type = FEATURE_INTERACTIVE;
+//    if ( UBFileSystemUtils::mimeTypeFromFileName( newFullPath ).contains("application") )
+//        type = FEATURE_INTERACTIVE;
     UBFeature newElement( destVirtualPath + "/" + name, thumb, name, QUrl::fromLocalFile( newFullPath ), type );
     return newElement;
 }
@@ -1027,8 +1003,8 @@ UBFeature UBFeaturesController::copyItemToFolder( const QUrl &url, const UBFeatu
     QImage thumb = getIcon(newFullPath);
 
     UBFeatureElementType type = FEATURE_ITEM;
-    if (UBFileSystemUtils::mimeTypeFromFileName(newFullPath).contains("application"))
-        type = FEATURE_INTERACTIVE;
+//    if (UBFileSystemUtils::mimeTypeFromFileName(newFullPath).contains("application"))
+//        type = FEATURE_INTERACTIVE;
     UBFeature newElement( destVirtualPath + "/" + name, thumb, name, QUrl::fromLocalFile( newFullPath ), type );
     return newElement;
 }

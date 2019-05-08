@@ -51,12 +51,8 @@
 #include "UBDockPaletteWidget.h"
 #include "core/UBSettings.h"
 #include "board/UBFeaturesController.h"
-#include "api/UBWidgetUniboardAPI.h"
 #include "UBFeaturesActionBar.h"
 #include "UBRubberBand.h"
-#include <QtWebKit>
-#include <QWebView>
-#include <QWebSettings>
 
 #define THUMBNAIL_WIDTH 400
 #define ID_LISTVIEW 0
@@ -75,7 +71,6 @@ class UBFeaturesPathViewer;
 class UBFeatureProperties;
 class UBFeatureItemButton;
 class UBFeaturesListView;
-class UBFeaturesWebView;
 class UBFeaturesNavigatorWidget;
 class UBFeaturesMimeData;
 class UBFeaturesCentralWidget;
@@ -198,8 +193,7 @@ class UBFeaturesCentralWidget : public QWidget
 public:
     enum StackElement{
         MainList = 0,
-        FeaturePropertiesList,
-        FeaturesWebView
+        FeaturePropertiesList
     };
 
     enum AddWidget {
@@ -228,7 +222,6 @@ public:
     QStackedWidget *mStackedWidget;
     UBFeaturesNavigatorWidget *mNavigator;
     UBFeatureProperties *mFeatureProperties;
-    UBFeaturesWebView *webView;
 
     QStackedWidget *mAdditionalDataContainer;
 
@@ -302,26 +295,6 @@ private:
     QProgressBar *mProgressBar;
     QLabel *mCommonInfoLabel;
     QLabel *mDetailedInfoLabel;
-};
-
-class UBFeaturesWebView : public QWidget
-{
-    Q_OBJECT
-public:
-    UBFeaturesWebView(QWidget* parent = 0, const char* name = "UBFeaturesWebView");
-    virtual ~UBFeaturesWebView();
-
-    void showElement(const UBFeature &elem);
-
-private slots:
-    void onLoadFinished(bool ok);
-    void javaScriptWindowObjectCleared();
-
-private:
-    QWebView* mpView;
-    QWebSettings* mpWebSettings;
-    QVBoxLayout* mpLayout;
-    UBWidgetUniboardAPI* mpSankoreAPI;
 };
 
 class UBFeatureProperties : public QWidget

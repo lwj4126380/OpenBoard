@@ -48,14 +48,9 @@
 #include "core/UBPersistenceManager.h"
 
 #include "document/UBDocumentProxy.h"
-
-#include "UBGraphicsWidgetItem.h"
-
 #include "domain/UBGraphicsTextItem.h"
 #include "domain/UBGraphicsMediaItem.h"
 #include "domain/UBGraphicsGroupContainerItem.h"
-
-#include "web/UBWebController.h"
 
 #include "frameworks/UBFileSystemUtils.h"
 #include "board/UBDrawingController.h"
@@ -512,11 +507,6 @@ void UBGraphicsItemDelegate::remove(bool canUndo)
             scene->removeItem(mFrame);
         }
 
-        /* this is performed because when removing delegated from scene while it contains flash content, segfault happens because of QGraphicsScene::removeItem() */
-        UBGraphicsWidgetItem *mDelegated_casted = dynamic_cast<UBGraphicsWidgetItem*>(mDelegated);
-        if (mDelegated_casted)
-            mDelegated_casted->setHtml(QString());
-
         scene->removeItem(mDelegated);
 
         if (canUndo)
@@ -631,17 +621,6 @@ void UBGraphicsItemDelegate::setAsBackground()
     }
 }
 
-void UBGraphicsItemDelegate::gotoContentSource()
-{
-    UBItem* item = dynamic_cast<UBItem*>(mDelegated);
-
-    if(item && !item->sourceUrl().isEmpty())
-    {
-        UBApplication::applicationController->showInternet();
-        UBApplication::webController->loadUrl(item->sourceUrl());
-    }
-}
-
 void UBGraphicsItemDelegate::startUndoStep()
 {
     mPreviousPosition = mDelegated->pos();
@@ -726,11 +705,7 @@ void UBGraphicsItemDelegate::decorateMenu(QMenu* menu)
 
     if (testUBFlags(GF_SHOW_CONTENT_SOURCE))
     {
-        mGotoContentSourceAction = menu->addAction(tr("Go to Content Source"), this, SLOT(gotoContentSource()));
 
-        QIcon sourceIcon;
-        sourceIcon.addPixmap(QPixmap(":/images/toolbar/internet.png"), QIcon::Normal, QIcon::On);
-        mGotoContentSourceAction->setIcon(sourceIcon);
     }
 }
 

@@ -30,7 +30,6 @@
 #include "UBCoreGraphicsScene.h"
 
 #include "domain/UBGraphicsMediaItem.h"
-#include "domain/UBGraphicsWidgetItem.h"
 #include "domain/UBGraphicsGroupContainerItem.h"
 
 #include "core/memcheck.h"

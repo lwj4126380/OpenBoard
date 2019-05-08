@@ -1338,59 +1338,9 @@ UBItem *UBBoardController::downloadFinished(bool pSuccess, QUrl sourceUrl, QUrl 
     else if (UBMimeType::Flash == itemMimeType)
     {
 
-        qDebug() << "accepting mime type" << mimeType << "as flash";
+        qDebug() << "accepting mime type" << mimeType << "as flash===> not support";
 
-        QString sUrl = sourceUrl.toString();
-
-        if (sUrl.startsWith("file://") || sUrl.startsWith("/"))
-        {
-            sUrl = sourceUrl.toLocalFile();
-        }
-
-        QTemporaryFile* eduMediaFile = 0;
-
-        if (sUrl.toLower().contains("edumedia-sciences.com"))
-        {
-            eduMediaFile = new QTemporaryFile("XXXXXX.swf");
-            if (eduMediaFile->open())
-            {
-                eduMediaFile->write(pData);
-                QFileInfo fi(*eduMediaFile);
-                sUrl = fi.absoluteFilePath();
-            }
-        }
-
-        QSize size;
-
-        if (pSize.height() > 0 && pSize.width() > 0)
-            size = pSize;
-        else
-            size = mActiveScene->nominalSize() * .8;
-
-        Q_UNUSED(internalData)
-
-        QString widgetUrl = UBGraphicsW3CWidgetItem::createNPAPIWrapper(sUrl, mimeType, size);
-        UBFileSystemUtils::deleteFile(sourceUrl.toLocalFile());
-        emit npapiWidgetCreated(widgetUrl);
-
-        if (widgetUrl.length() > 0)
-        {
-            UBGraphicsWidgetItem *widgetItem = mActiveScene->addW3CWidget(QUrl::fromLocalFile(widgetUrl), pPos);
-            widgetItem->setUuid(QUuid::createUuid());
-            widgetItem->setSourceUrl(QUrl::fromLocalFile(widgetUrl));
-            qDebug() << widgetItem->getOwnFolder();
-            qDebug() << widgetItem->getSnapshotPath();
-
-            widgetItem->setSnapshotPath(widgetItem->getOwnFolder());
-
-            UBDrawingController::drawingController()->setStylusTool(UBStylusTool::Selector);
-
-            return widgetItem;
-        }
-
-        if (eduMediaFile)
-            delete eduMediaFile;
-
+        return nullptr;
     }
     else if (UBMimeType::PDF == itemMimeType)
     {

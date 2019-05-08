@@ -28,8 +28,6 @@
 
 
 #include <QDomDocument>
-#include <QWebView>
-#include <QWebFrame>
 #include <QWidget>
 
 #include "UBFeaturesWidget.h"
@@ -516,12 +514,10 @@ UBFeaturesCentralWidget::UBFeaturesCentralWidget(QWidget *parent) : QWidget(pare
     mFeatureProperties = new UBFeatureProperties(this);
 
     //Used to show search bar on the search widget
-    webView = new UBFeaturesWebView(this);
 
     //filling stackwidget
     mStackedWidget->addWidget(mNavigator);
     mStackedWidget->addWidget(mFeatureProperties);
-    mStackedWidget->addWidget(webView);
     mStackedWidget->setCurrentIndex(MainList);
     mStackedWidget->setContentsMargins(0, 0, 0, 0);
 
@@ -556,10 +552,7 @@ UBFeaturesCentralWidget::UBFeaturesCentralWidget(QWidget *parent) : QWidget(pare
 
 void UBFeaturesCentralWidget::showElement(const UBFeature &feature, StackElement pView)
 {
-    if (pView == FeaturesWebView) {
-        webView->showElement(feature);
-        mStackedWidget->setCurrentIndex(FeaturesWebView);
-    } else if (pView == FeaturePropertiesList) {
+    if (pView == FeaturePropertiesList) {
         mFeatureProperties->showElement(feature);
         mStackedWidget->setCurrentIndex(FeaturePropertiesList);
     }
@@ -760,107 +753,6 @@ void UBFeaturesProgressInfo::sendFeature(UBFeature pFeature)
 {
     Q_UNUSED(pFeature);
 }
-
-
-UBFeaturesWebView::UBFeaturesWebView(QWidget* parent, const char* name):QWidget(parent)
-    , mpView(NULL)
-    , mpWebSettings(NULL)
-    , mpLayout(NULL)
-    , mpSankoreAPI(NULL)
-{
-    setObjectName(name);
-
-    SET_STYLE_SHEET();
-
-    mpLayout = new QVBoxLayout();
-    setLayout(mpLayout);
-
-    mpView = new QWebView(this);
-    mpView->setObjectName("SearchEngineView");
-    mpSankoreAPI = new UBWidgetUniboardAPI(UBApplication::boardController->activeScene());
-    mpView->page()->mainFrame()->addToJavaScriptWindowObject("sankore", mpSankoreAPI);
-    connect(mpView->page()->mainFrame(), SIGNAL(javaScriptWindowObjectCleared()), this, SLOT(javaScriptWindowObjectCleared()));
-    mpWebSettings = QWebSettings::globalSettings();
-    mpWebSettings->setAttribute(QWebSettings::JavaEnabled, true);
-    mpWebSettings->setAttribute(QWebSettings::PluginsEnabled, true);
-    mpWebSettings->setAttribute(QWebSettings::LocalStorageDatabaseEnabled, true);
-    mpWebSettings->setAttribute(QWebSettings::OfflineWebApplicationCacheEnabled, true);
-    mpWebSettings->setAttribute(QWebSettings::OfflineStorageDatabaseEnabled, true);
-    mpWebSettings->setAttribute(QWebSettings::JavascriptCanAccessClipboard, true);
-    mpWebSettings->setAttribute(QWebSettings::DnsPrefetchEnabled, true);
-    mpWebSettings->setAttribute(QWebSettings::LocalContentCanAccessRemoteUrls, true);
-
-    mpLayout->addWidget(mpView);
-    mpLayout->setMargin(0);
-
-    connect(mpView, SIGNAL(loadFinished(bool)), this, SLOT(onLoadFinished(bool)));
-}
-
-UBFeaturesWebView::~UBFeaturesWebView()
-{
-    if( NULL != mpSankoreAPI )
-    {
-        delete mpSankoreAPI;
-        mpSankoreAPI = NULL;
-    }
-    if( NULL != mpView )
-    {
-        delete mpView;
-        mpView = NULL;
-    }
-    if( NULL != mpLayout )
-    {
-        delete mpLayout;
-        mpLayout = NULL;
-    }
-}
-
-void UBFeaturesWebView::javaScriptWindowObjectCleared()
-{
-    mpView->page()->mainFrame()->addToJavaScriptWindowObject("sankore", mpSankoreAPI);
-}
-
-void UBFeaturesWebView::showElement(const UBFeature &elem)
-{
-    QString qsWidgetName;
-    QString path = elem.getFullPath().toLocalFile();
-
-    QString qsConfigPath = QString("%0/config.xml").arg(path);
-
-    if(QFile::exists(qsConfigPath))
-    {
-        QFile f(qsConfigPath);
-        if(f.open(QIODevice::ReadOnly))
-        {
-            QDomDocument domDoc;
-            domDoc.setContent(QString(f.readAll()));
-            QDomElement root = domDoc.documentElement();
-
-            QDomNode node = root.firstChild();
-            while(!node.isNull())
-            {
-                if(node.toElement().tagName() == "content")
-                {
-                    QDomAttr srcAttr = node.toElement().attributeNode("src");
-                    qsWidgetName = srcAttr.value();
-                    break;
-                }
-                node = node.nextSibling();
-            }
-            f.close();
-        }
-    }
-
-    mpView->load(QUrl::fromLocalFile(QString("%0/%1").arg(path).arg(qsWidgetName)));
-}
-
-void UBFeaturesWebView::onLoadFinished(bool ok)
-{
-    if(ok && NULL != mpSankoreAPI){
-        mpView->page()->mainFrame()->addToJavaScriptWindowObject("sankore", mpSankoreAPI);
-    }
-}
-
 
 UBFeatureProperties::UBFeatureProperties( QWidget *parent, const char *name ) : QWidget(parent)
     , mpLayout(NULL)

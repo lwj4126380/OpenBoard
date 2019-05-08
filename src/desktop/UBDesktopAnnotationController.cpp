@@ -38,8 +38,6 @@
 #include "core/UBDisplayManager.h"
 #include "core/UBSettings.h"
 
-#include "web/UBWebController.h"
-
 #include "gui/UBMainWindow.h"
 
 #include "board/UBBoardView.h"

@@ -102,16 +102,13 @@ enum UBFeatureElementType
     FEATURE_CATEGORY,
     FEATURE_VIRTUALFOLDER,
     FEATURE_FOLDER,
-    FEATURE_INTERACTIVE,
     FEATURE_INTERNAL,
     FEATURE_ITEM,
     FEATURE_AUDIO,
     FEATURE_VIDEO,
     FEATURE_IMAGE,
-    FEATURE_FLASH,
     FEATURE_TRASH,
     FEATURE_FAVORITE,
-    FEATURE_SEARCH,
     FEATURE_INVALID
 };
 
@@ -241,7 +238,6 @@ signals:
 private slots:
     void addNewFolder(QString name);
     void startThread();
-    void createNpApiFeature(const QString &str);
 
 private:
 

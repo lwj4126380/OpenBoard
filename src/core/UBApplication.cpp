@@ -51,7 +51,6 @@
 #include "board/UBDrawingController.h"
 #include "board/UBBoardView.h"
 #include "board/UBBoardPaletteManager.h"
-#include "web/UBWebController.h"
 
 #include "document/UBDocumentController.h"
 #include "document/UBDocumentProxy.h"

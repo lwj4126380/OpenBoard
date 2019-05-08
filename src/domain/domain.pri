@@ -8,7 +8,6 @@ HEADERS += src/domain/UBGraphicsScene.h \
     src/domain/UBGraphicsSvgItem.h \
     src/domain/UBGraphicsPolygonItem.h \
     src/domain/UBItem.h \
-    src/domain/UBGraphicsWidgetItem.h \
     src/domain/UBGraphicsPDFItem.h \
     src/domain/UBGraphicsTextItem.h \
     src/domain/UBResizableGraphicsItem.h \
@@ -21,7 +20,6 @@ HEADERS += src/domain/UBGraphicsScene.h \
     src/domain/UBGraphicsItemDelegate.h \
     src/domain/UBGraphicsTextItemDelegate.h \
     src/domain/UBGraphicsDelegateFrame.h \
-    src/domain/UBGraphicsWidgetItemDelegate.h \
     src/domain/UBGraphicsMediaItemDelegate.h \
     src/domain/UBSelectionFrame.h \
     src/domain/UBUndoCommand.h \
@@ -37,7 +35,6 @@ SOURCES += src/domain/UBGraphicsScene.cpp \
     src/domain/UBGraphicsSvgItem.cpp \
     src/domain/UBGraphicsPolygonItem.cpp \
     src/domain/UBItem.cpp \
-    src/domain/UBGraphicsWidgetItem.cpp \
     src/domain/UBGraphicsPDFItem.cpp \
     src/domain/UBGraphicsTextItem.cpp \
     src/domain/UBResizableGraphicsItem.cpp \
@@ -51,7 +48,6 @@ SOURCES += src/domain/UBGraphicsScene.cpp \
     src/domain/UBGraphicsTextItemDelegate.cpp \
     src/domain/UBGraphicsMediaItemDelegate.cpp \
     src/domain/UBGraphicsDelegateFrame.cpp \
-    src/domain/UBGraphicsWidgetItemDelegate.cpp \
     src/domain/UBSelectionFrame.cpp \
     src/domain/UBUndoCommand.cpp \
     src/domain/UBGraphicsItemZLevelUndoCommand.cpp

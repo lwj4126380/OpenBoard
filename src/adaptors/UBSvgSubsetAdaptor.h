@@ -134,10 +134,6 @@ class UBSvgSubsetAdaptor
 
                 UBGraphicsMediaItem* audioItemFromSvg();
 
-                UBGraphicsAppleWidgetItem* graphicsAppleWidgetFromSvg();
-
-                UBGraphicsW3CWidgetItem* graphicsW3CWidgetFromSvg();
-
                 UBGraphicsTextItem* textItemFromSvg();
 
                 UBGraphicsCurtainItem* curtainItemFromSvg();
@@ -241,9 +237,6 @@ class UBSvgSubsetAdaptor
                 void videoItemToLinkedVideo(UBGraphicsVideoItem *videoItem);
                 void audioItemToLinkedAudio(UBGraphicsAudioItem *audioItem);
                 void graphicsItemToSvg(QGraphicsItem *item);
-                void graphicsAppleWidgetToSvg(UBGraphicsAppleWidgetItem *item);
-                void graphicsW3CWidgetToSvg(UBGraphicsW3CWidgetItem *item);
-                void graphicsWidgetToSvg(UBGraphicsWidgetItem *item);
                 void textItemToSvg(UBGraphicsTextItem *item);
                 void curtainItemToSvg(UBGraphicsCurtainItem *item);
                 void rulerToSvg(UBGraphicsRuler *item);

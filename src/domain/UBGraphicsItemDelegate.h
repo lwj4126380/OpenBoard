@@ -357,7 +357,6 @@ class UBGraphicsItemDelegate : public QObject
 
 protected slots:
         virtual void setAsBackground();
-        virtual void gotoContentSource();
 
 private:
         void updateFrame();

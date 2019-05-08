@@ -40,7 +40,6 @@
 #include "domain/UBGraphicsProxyWidget.h"
 #include "domain/UBGraphicsPolygonItem.h"
 #include "domain/UBGraphicsMediaItem.h"
-#include "domain/UBGraphicsWidgetItem.h"
 #include "domain/UBGraphicsPDFItem.h"
 #include "domain/UBGraphicsTextItem.h"
 #include "domain/UBGraphicsTextItemDelegate.h"
@@ -353,7 +352,6 @@ UBGraphicsScene* UBSvgSubsetAdaptor::UBSvgSubsetReader::loadScene(UBDocumentProx
     QTime time;
     time.start();
     mScene = 0;
-    UBGraphicsWidgetItem *currentWidget = 0;
     bool pageDpiSpecified = true;
     saveSceneAfterLoading = false;
 
@@ -835,40 +833,6 @@ UBGraphicsScene* UBSvgSubsetAdaptor::UBSvgSubsetReader::loadScene(UBDocumentProx
                             mScene->setAsBackgroundObject(pdfItem);
 
                         pdfItem->show();
-
-                        currentWidget = 0;
-                    }
-                }
-                else if (src.contains(".wdgt"))
-                {
-                    UBGraphicsAppleWidgetItem* appleWidgetItem = graphicsAppleWidgetFromSvg();
-                    if (appleWidgetItem)
-                    {
-                        appleWidgetItem->setFlag(QGraphicsItem::ItemIsSelectable, true);
-
-                        appleWidgetItem->resize(foreignObjectWidth, foreignObjectHeight);
-
-                        mScene->addItem(appleWidgetItem);
-
-                        appleWidgetItem->show();
-
-                        currentWidget = appleWidgetItem;
-                    }
-                }
-                else if (src.contains(".wgt"))
-                {
-                    UBGraphicsW3CWidgetItem* w3cWidgetItem = graphicsW3CWidgetFromSvg();
-                    if (w3cWidgetItem)
-                    {
-                        w3cWidgetItem->setFlag(QGraphicsItem::ItemIsSelectable, true);
-
-                        w3cWidgetItem->resize(foreignObjectWidth, foreignObjectHeight);
-
-                        mScene->addItem(w3cWidgetItem);
-
-                        w3cWidgetItem->show();
-
-                        currentWidget = w3cWidgetItem;
                     }
                 }
                 else if (type == "text")
@@ -903,20 +867,7 @@ UBGraphicsScene* UBSvgSubsetAdaptor::UBSvgSubsetReader::loadScene(UBDocumentProx
                     qWarning() << "Ignoring unknown foreignObject:" << href;
                 }
             }
-            else if (currentWidget && (mXmlReader.name() == "preference"))
-            {
-                QString key = mXmlReader.attributes().value("key").toString();
-                QString value = mXmlReader.attributes().value("value").toString();
-
-                currentWidget->setPreference(key, value);
-            }
-            else if (currentWidget && (mXmlReader.name() == "datastoreEntry"))
-            {
-                QString key = mXmlReader.attributes().value("key").toString();
-                QString value = mXmlReader.attributes().value("value").toString();
-
-                currentWidget->setDatastoreEntry(key, value);
-            } else if (mXmlReader.name() == tGroups) {
+            else if (mXmlReader.name() == tGroups) {
                 //considering groups section at the end of the document
                 readGroupRoot();
             }
@@ -1302,22 +1253,6 @@ bool UBSvgSubsetAdaptor::UBSvgSubsetWriter::persistScene(UBDocumentProxy* proxy,
 
         if (audioItem && audioItem->isVisible()) {
             audioItemToLinkedAudio(audioItem);
-            continue;
-        }
-
-        // Is the item an app?
-        UBGraphicsAppleWidgetItem *appleWidgetItem = qgraphicsitem_cast<UBGraphicsAppleWidgetItem*> (item);
-        if (appleWidgetItem && appleWidgetItem->isVisible())
-        {
-            graphicsAppleWidgetToSvg(appleWidgetItem);
-            continue;
-        }
-
-        // Is the item a W3C?
-        UBGraphicsW3CWidgetItem *w3cWidgetItem = qgraphicsitem_cast<UBGraphicsW3CWidgetItem*> (item);
-        if (w3cWidgetItem && w3cWidgetItem->isVisible())
-        {
-            graphicsW3CWidgetToSvg(w3cWidgetItem);
             continue;
         }
 
@@ -2393,174 +2328,6 @@ void UBSvgSubsetAdaptor::UBSvgSubsetWriter::graphicsItemToSvg(QGraphicsItem* ite
         else
             mXmlWriter.writeAttribute(UBSettings::uniboardDocumentNamespaceUri, "editable", xmlFalse);
     }
-}
-
-
-
-
-void UBSvgSubsetAdaptor::UBSvgSubsetWriter::graphicsAppleWidgetToSvg(UBGraphicsAppleWidgetItem* item)
-{
-    graphicsWidgetToSvg(item);
-}
-
-void UBSvgSubsetAdaptor::UBSvgSubsetWriter::graphicsW3CWidgetToSvg(UBGraphicsW3CWidgetItem* item)
-{
-    graphicsWidgetToSvg(item);
-}
-
-void UBSvgSubsetAdaptor::UBSvgSubsetWriter::graphicsWidgetToSvg(UBGraphicsWidgetItem* item)
-{
-    QUrl widgetRootUrl = item->widgetUrl();
-    QString uuid = UBStringUtils::toCanonicalUuid(item->uuid());
-    QString widgetDirectoryPath = UBPersistenceManager::widgetDirectory;
-    if (widgetRootUrl.toString().startsWith("file://"))
-    {
-        QString widgetRootDir = widgetRootUrl.toLocalFile();
-        QFileInfo fi(widgetRootDir);
-        QString extension = fi.suffix();
-
-        QString widgetTargetDir = widgetDirectoryPath + "/" + item->uuid().toString() + "." + extension;
-
-        QString path = mDocumentPath + "/" + widgetTargetDir;
-        QDir dir(path);
-
-        if (!dir.exists(path))
-        {
-            QDir dir;
-            dir.mkpath(path);
-            UBFileSystemUtils::copyDir(widgetRootDir, path);
-        }
-
-        widgetRootUrl = widgetTargetDir;
-    }
-
-    QString widgetPath = "widgets/" + widgetRootUrl.fileName();
-
-    mXmlWriter.writeStartElement("foreignObject");
-    mXmlWriter.writeAttribute(UBSettings::uniboardDocumentNamespaceUri, "src", widgetPath);
-
-    graphicsItemToSvg(item);
-
-    if (item->isFrozen())
-    {
-        mXmlWriter.writeAttribute(UBSettings::uniboardDocumentNamespaceUri, "frozen", xmlTrue);
-    }
-
-    mXmlWriter.writeStartElement(nsXHtml, "iframe");
-
-    mXmlWriter.writeAttribute("style", "border: none");
-    mXmlWriter.writeAttribute("width", QString("%1").arg(item->boundingRect().width()));
-    mXmlWriter.writeAttribute("height", QString("%1").arg(item->boundingRect().height()));
-
-    QString startFileUrl;
-    if (item->mainHtmlFileName().startsWith("http://"))
-        startFileUrl = item->mainHtmlFileName();
-    else
-        startFileUrl = widgetRootUrl.toString() + "/" + item->mainHtmlFileName();
-
-    startFileUrl = QUrl::fromPercentEncoding(startFileUrl.toUtf8());
-
-    mXmlWriter.writeAttribute("src", startFileUrl);
-    mXmlWriter.writeEndElement(); //iFrame
-
-    //persists widget state
-    QMap<QString, QString> preferences = item->preferences();
-
-    foreach(QString key, preferences.keys())
-    {
-        QString value = preferences.value(key);
-
-        mXmlWriter.writeStartElement(UBSettings::uniboardDocumentNamespaceUri, "preference");
-
-        mXmlWriter.writeAttribute("key", key);
-        mXmlWriter.writeAttribute("value", value);
-
-        mXmlWriter.writeEndElement(); //ub::preference
-    }
-
-    //persists datasore state
-    QMap<QString, QString> datastore = item->datastoreEntries();
-
-    foreach(QString key, datastore.keys())
-    {
-        QString value = datastore.value(key);
-
-        mXmlWriter.writeStartElement(UBSettings::uniboardDocumentNamespaceUri, "datastoreEntry");
-
-        mXmlWriter.writeAttribute("key", key);
-        mXmlWriter.writeAttribute("value", value);
-
-        mXmlWriter.writeEndElement(); //ub::datastoreEntry
-    }
-
-    mXmlWriter.writeEndElement();
-}
-
-
-UBGraphicsAppleWidgetItem* UBSvgSubsetAdaptor::UBSvgSubsetReader::graphicsAppleWidgetFromSvg()
-{
-
-    QStringRef widgetUrl = mXmlReader.attributes().value(mNamespaceUri, "src");
-
-    if (widgetUrl.isNull())
-    {
-        qWarning() << "cannot make sens of widget src value";
-        return 0;
-    }
-
-    QString href = widgetUrl.toString();
-
-    QUrl url(href);
-
-    if (url.isRelative())
-    {
-        href = mDocumentPath + "/" + UBFileSystemUtils::normalizeFilePath(widgetUrl.toString());
-    }
-
-    UBGraphicsAppleWidgetItem* widgetItem = new UBGraphicsAppleWidgetItem(QUrl::fromLocalFile(href));
-
-    graphicsItemFromSvg(widgetItem);
-
-    return widgetItem;
-}
-
-UBGraphicsW3CWidgetItem* UBSvgSubsetAdaptor::UBSvgSubsetReader::graphicsW3CWidgetFromSvg()
-{
-    QStringRef widgetUrl = mXmlReader.attributes().value(mNamespaceUri, "src");
-
-    if (widgetUrl.isNull())
-    {
-        qWarning() << "cannot make sens of widget src value";
-        return 0;
-    }
-
-    QString href = widgetUrl.toString();
-    QUrl url(href);
-
-    if (url.isRelative())
-    {
-        href = mDocumentPath + "/" + UBFileSystemUtils::normalizeFilePath(widgetUrl.toString());
-    }
-
-    UBGraphicsW3CWidgetItem* widgetItem = new UBGraphicsW3CWidgetItem(QUrl::fromLocalFile(href));
-
-    QStringRef uuid = mXmlReader.attributes().value(mNamespaceUri, "uuid");
-    QString pixPath = mDocumentPath + "/" + UBPersistenceManager::widgetDirectory + "/" + uuid.toString() + ".png";
-
-    QPixmap snapshot(pixPath);
-    if (!snapshot.isNull())
-        widgetItem->setSnapshot(snapshot);
-
-    QStringRef frozen = mXmlReader.attributes().value(mNamespaceUri, "frozen");
-
-    if (!frozen.isNull() && frozen.toString() == xmlTrue && !snapshot.isNull())
-    {
-        widgetItem->freeze();
-    }
-
-    graphicsItemFromSvg(widgetItem);
-
-    return widgetItem;
 }
 
 void UBSvgSubsetAdaptor::UBSvgSubsetWriter::textItemToSvg(UBGraphicsTextItem* item)

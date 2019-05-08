@@ -43,10 +43,8 @@
 #include "domain/UBGraphicsSvgItem.h"
 #include "domain/UBGraphicsPixmapItem.h"
 #include "domain/UBGraphicsMediaItem.h"
-#include "domain/UBGraphicsWidgetItem.h"
 #include "domain/UBGraphicsTextItem.h"
 #include "domain/UBGraphicsTextItemDelegate.h"
-#include "domain/UBGraphicsWidgetItem.h"
 #include "domain/UBGraphicsGroupContainerItem.h"
 
 #include "frameworks/UBFileSystemUtils.h"
@@ -904,57 +902,7 @@ bool UBCFFSubsetAdaptor::UBCFFSubsetReader::parseSvgImage(const QDomElement &ele
 
    return true;
 }
-bool UBCFFSubsetAdaptor::UBCFFSubsetReader::parseSvgFlash(const QDomElement &element)
-{
-    QString itemRefPath = element.attribute(aHref);
 
-    qreal x = element.attribute(aX).toDouble();
-    qreal y = element.attribute(aY).toDouble();
-    qreal width = element.attribute(aWidth).toDouble();
-    qreal height = element.attribute(aHeight).toDouble();
-
-    QUrl urlPath;
-    QString flashPath;
-    if (!itemRefPath.isNull()) {
-        flashPath = pwdContent + "/" + itemRefPath;
-        if (!QFile::exists(flashPath)) {
-            qDebug() << "can't load file" << pwdContent + "/" + itemRefPath << "maybe file corrupted";
-            return false;
-        }
-        urlPath = QUrl::fromLocalFile(flashPath);
-    }
-    QDir tmpFlashDir(mTmpFlashDir);
-    if (!tmpFlashDir.exists()) {
-        qDebug() << "Can't create temporary directory to put flash";
-        return false;
-    }
-
-    QString flashUrl = UBGraphicsW3CWidgetItem::createNPAPIWrapperInDir(flashPath, tmpFlashDir, "application/x-shockwave-flash"
-                                                            ,QSize(mCurrentSceneRect.width(), mCurrentSceneRect.height()));
-    UBGraphicsWidgetItem *flashItem = mCurrentScene->addW3CWidget(QUrl::fromLocalFile(flashUrl));
-    flashItem->setSourceUrl(urlPath);
-
-    QString uuid = QUuid::createUuid().toString();
-    mRefToUuidMap.insert(element.attribute(aId), uuid);
-    flashItem->setUuid(QUuid(uuid));
-
-    QTransform transform;
-    QString textTransform = element.attribute(aTransform);
-
-    flashItem->resetTransform();
-    if (!textTransform.isNull()) {
-        transform = transformFromString(textTransform, flashItem);
-    }
-    repositionSvgItem(flashItem, width, height, x + transform.m31(), y + transform.m32(), transform);
-    hashSceneItem(element, flashItem);
-
-    if (mGSectionContainer)
-    {
-        addItemToGSection(flashItem);
-    }
-
-    return true;
-}
 
 bool UBCFFSubsetAdaptor::UBCFFSubsetReader::parseSvgAudio(const QDomElement &element)
 {
@@ -1014,8 +962,7 @@ bool UBCFFSubsetAdaptor::UBCFFSubsetReader::parseSvgVideo(const QDomElement &ele
 {
     QString itemRefPath = element.attribute(aHref);
     if (itemRefPath.startsWith(tFlash + "/") && itemRefPath.endsWith(".swf")) {
-        if (parseSvgFlash(element)) return true;
-        else return false;
+        return false;
     }
     qreal x = element.attribute(aX).toDouble();
     qreal y = element.attribute(aY).toDouble();
@@ -1104,7 +1051,7 @@ bool UBCFFSubsetAdaptor::UBCFFSubsetReader::parseSvgElement(const QDomElement &p
     else if (tagName == tText       &&  !parseSvgText(parent))              return false;
     else if (tagName == tTextarea   &&  !parseSvgTextarea(parent))          return false;
     else if (tagName == tImage      &&  !parseSvgImage(parent))             return false;
-    else if (tagName == tFlash      &&  !parseSvgFlash(parent))             return false;
+    else if (tagName == tFlash                                )             return false;
     else if (tagName == tAudio      &&  !parseSvgAudio(parent))             return false;
     else if (tagName == tVideo      &&  !parseSvgVideo(parent))             return false;
 

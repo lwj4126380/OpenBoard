@@ -37,7 +37,6 @@
 #include "domain/UBGraphicsMediaItem.h"
 #include "domain/UBGraphicsStrokesGroup.h"
 #include "domain/UBGraphicsGroupContainerItem.h"
-#include "domain/UBGraphicsWidgetItem.h"
 #include "domain/UBGraphicsScene.h"
 #include "tools/UBGraphicsCurtainItem.h"
 #include "domain/UBGraphicsItemDelegate.h"
@@ -128,9 +127,6 @@ UBGraphicsItemDelegate *UBGraphicsItem::Delegate(QGraphicsItem *pItem)
         break;
     case UBGraphicsGroupContainerItem::Type :
         result = (static_cast<UBGraphicsGroupContainerItem*>(pItem))->Delegate();
-        break;
-    case UBGraphicsWidgetItem::Type :
-        result = (static_cast<UBGraphicsWidgetItem*>(pItem))->Delegate();
         break;
     case UBGraphicsCurtainItem::Type :
         result = (static_cast<UBGraphicsCurtainItem*>(pItem))->Delegate();

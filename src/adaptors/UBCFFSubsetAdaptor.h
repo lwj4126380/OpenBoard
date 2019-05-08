@@ -113,7 +113,6 @@ private:
         inline bool parseSvgText(const QDomElement &element);
         inline bool parseSvgTextarea(const QDomElement &element);
         inline bool parseSvgImage(const QDomElement &element);
-        inline bool parseSvgFlash(const QDomElement &element);
         inline bool parseSvgAudio(const QDomElement &element);
         inline bool parseSvgVideo(const QDomElement &element);
         inline UBGraphicsGroupContainerItem *parseIwbGroup(QDomElement &parent);

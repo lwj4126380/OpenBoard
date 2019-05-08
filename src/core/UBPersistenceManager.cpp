@@ -51,7 +51,6 @@
 #include "adaptors/UBMetadataDcSubsetAdaptor.h"
 
 #include "domain/UBGraphicsMediaItem.h"
-#include "domain/UBGraphicsWidgetItem.h"
 #include "domain/UBGraphicsPixmapItem.h"
 #include "domain/UBGraphicsSvgItem.h"
 
